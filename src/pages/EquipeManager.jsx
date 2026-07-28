@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../lib/AuthContext'
 
 export default function EquipeManager() {
+    const { profil } = useAuth()
+    const peutValider = profil?.role === 'rh'
     const [demandes, setDemandes] = useState(null)
     const [erreur, setErreur] = useState(null)
     const [motifRefus, setMotifRefus] = useState({})
@@ -69,6 +72,9 @@ export default function EquipeManager() {
     return (
         <div className="bg-white rounded-xl border border-slate-200 p-6">
             <h2 className="text-lg font-semibold text-slate-900">Demandes en attente</h2>
+            {!peutValider && (
+                <p className="text-sm text-slate-400 mt-1">Lecture seule — la validation revient à la RH.</p>
+            )}
 
             {demandes.length === 0 && (
                 <p className="text-sm text-slate-500 mt-3">Aucune demande en attente.</p>
@@ -87,31 +93,35 @@ export default function EquipeManager() {
                                     <p className="text-sm text-slate-500 mt-1">{d.motif_salarie}</p>
                                 )}
                             </div>
-                            <button
-                                onClick={() => approuver(d.id)}
-                                className="text-sm bg-green-600 text-white rounded-lg px-3 py-1.5"
-                            >
-                                Approuver
-                            </button>
+                            {peutValider && (
+                                <button
+                                    onClick={() => approuver(d.id)}
+                                    className="text-sm bg-green-600 text-white rounded-lg px-3 py-1.5"
+                                >
+                                    Approuver
+                                </button>
+                            )}
                         </div>
 
-                        <div className="flex gap-2 mt-3">
-                            <input
-                                type="text"
-                                placeholder="Motif de refus"
-                                className="flex-1 rounded-lg border border-slate-300 px-3 py-1.5 text-sm"
-                                value={motifRefus[d.id] ?? ''}
-                                onChange={(e) =>
-                                    setMotifRefus({ ...motifRefus, [d.id]: e.target.value })
-                                }
-                            />
-                            <button
-                                onClick={() => refuser(d.id)}
-                                className="text-sm bg-red-600 text-white rounded-lg px-3 py-1.5"
-                            >
-                                Refuser
-                            </button>
-                        </div>
+                        {peutValider && (
+                            <div className="flex gap-2 mt-3">
+                                <input
+                                    type="text"
+                                    placeholder="Motif de refus"
+                                    className="flex-1 rounded-lg border border-slate-300 px-3 py-1.5 text-sm"
+                                    value={motifRefus[d.id] ?? ''}
+                                    onChange={(e) =>
+                                        setMotifRefus({ ...motifRefus, [d.id]: e.target.value })
+                                    }
+                                />
+                                <button
+                                    onClick={() => refuser(d.id)}
+                                    className="text-sm bg-red-600 text-white rounded-lg px-3 py-1.5"
+                                >
+                                    Refuser
+                                </button>
+                            </div>
+                        )}
                     </div>
                 ))}
             </div>
