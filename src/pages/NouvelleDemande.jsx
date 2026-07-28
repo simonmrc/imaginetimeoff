@@ -115,7 +115,7 @@ export default function NouvelleDemande() {
                             checked={demiJourFin}
                             onChange={(e) => setDemiJourFin(e.target.checked)}
                         />
-                        Retour le matin seulement
+                        Retour l'après-midi seulement
                     </label>
                 </div>
 
